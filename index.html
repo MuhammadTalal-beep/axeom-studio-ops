@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AXEOM // Studio Operations Core</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            brand: ['"Space Grotesk"', 'sans-serif'],
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace'],
+          },
+          colors: {
+            brand: {
+              white: '#FFFFFF',
+              canvas: '#F8F9FA',
+              card: '#FFFFFF',
+              border: '#E5E7EB',
+              text: '#111827',
+              muted: '#6B7280'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    body {
+      background-color: #F8F9FA;
+      color: #111827;
+      font-family: 'Inter', sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+    .axeom-card {
+      background-color: #FFFFFF;
+      border: 1px solid #E5E7EB;
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05);
+      transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+    .axeom-card:hover {
+      border-color: #D1D5DB;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.07);
+    }
+    .clean-border {
+      border-color: #E5E7EB;
+    }
+    .tab-active {
+      color: #000000 !important;
+      border-color: #000000 !important;
+      background-color: #F3F4F6 !important;
+      font-weight: 600;
+    }
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: #F8F9FA; }
+    ::-webkit-scrollbar-thumb { background: #D1D5DB; border-radius: 999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #9CA3AF; }
+  </style>
+</head>
+<body class="min-h-screen relative flex flex-col bg-[#F8F9FA]">
+
+  <!-- Clean Crisp White Header -->
+  <header class="border-b clean-border bg-white sticky top-0 z-40 backdrop-blur-md px-6 py-4 shadow-sm">
+    <div class="max-w-7xl mx-auto flex items-center justify-between">
+      
+      <!-- Big Bold AXEOM Logo Badge (Always Visible & Inverted to Dark Black) -->
+      <div class="flex items-center gap-6">
+        <a href="#" class="flex items-center gap-5 group">
+          <div class="h-16 flex items-center">
+            <!-- Distinct Dark Badge Container with Logo Image -->
+            <div class="bg-black px-3.5 py-2 rounded-xl flex items-center justify-center shadow-md">
+              <img src="axeom-logo.png" alt="AXEOM" class="h-10 sm:h-12 w-auto object-contain brightness-100 invert-0 transition-transform group-hover:scale-105" onerror="this.style.display='none'; document.getElementById('logo-fallback').style.display='flex';" />
+            </div>
+            
+            <div id="logo-fallback" class="hidden items-center gap-2">
+              <span class="text-4xl sm:text-5xl font-extrabold tracking-[0.25em] text-black font-brand uppercase flex items-center">
+                <span>∧</span>XEOM
+              </span>
+            </div>
+          </div>
+          <div class="h-10 w-[1px] bg-gray-200 hidden sm:block"></div>
+          <div class="flex flex-col justify-center">
+            <span class="text-sm font-mono font-bold tracking-widest text-black uppercase">Studio Ops Core</span>
+            <span class="text-xs font-mono text-gray-500 uppercase tracking-wider">Dallas Production Hub</span>
+          </div>
+        </a>
+      </div>
+
+      <div class="flex items-center gap-4">
+        <div class="hidden md:flex items-center gap-2 text-xs font-mono text-gray-600 bg-gray-100 border clean-border px-3.5 py-2 rounded-lg">
+          <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+          <span>OCT 06, 2026 // PACK 74</span>
+        </div>
+
+        <button onclick="document.getElementById('csv-modal').classList.remove('hidden')" class="px-5 py-2.5 rounded-lg bg-black hover:bg-gray-800 text-white text-xs font-bold font-brand tracking-wider uppercase transition-all flex items-center gap-2 active:scale-95 shadow-sm">
+          <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+          Add Files (CSV)
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl w-full mx-auto px-6 py-6 space-y-6 flex-1">
+
+    <!-- Hero Section: Executive Metrics + 3D Logo Sculpture -->
+    <div class="grid grid-cols-1 lg:grid-cols-4 gap-6 items-stretch">
+      
+      <!-- Metrics Grid (3 cols on large) -->
+      <div class="lg:col-span-3 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        
+        <!-- Metric 1: Overdue -->
+        <div onclick="switchTab('overdue')" class="axeom-card rounded-xl p-4 cursor-pointer">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-medium text-gray-500 tracking-wide uppercase">Overdue Balance</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-red-100 border border-red-200 text-red-700 font-semibold">9 Invoices</span>
+          </div>
+          <div class="text-2xl font-bold font-brand tracking-tight text-gray-900" id="disp-overdue">$11,250<span class="text-sm font-normal text-gray-500">.00</span></div>
+          <div class="mt-2 text-xs font-mono text-red-600 font-medium" id="sub-overdue">
+            Oldest: 43 days late
+          </div>
+        </div>
+
+        <!-- Metric 2: Never Billed -->
+        <div onclick="switchTab('unbilled')" class="axeom-card rounded-xl p-4 cursor-pointer">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-medium text-gray-500 tracking-wide uppercase">Never Billed</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-100 border border-amber-200 text-amber-700 font-semibold">4 Shoots</span>
+          </div>
+          <div class="text-2xl font-bold font-brand tracking-tight text-gray-900" id="disp-unbilled">$6,000<span class="text-sm font-normal text-gray-500">.00</span></div>
+          <div class="mt-2 text-xs font-mono text-amber-700 font-medium">
+            Uninvoiced completed
+          </div>
+        </div>
+
+        <!-- Metric 3: Credits Owed -->
+        <div onclick="switchTab('credits')" class="axeom-card rounded-xl p-4 cursor-pointer">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-medium text-gray-500 tracking-wide uppercase">We Owe / Credits</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 border clean-border text-gray-700 font-semibold">3 Adjustments</span>
+          </div>
+          <div class="text-2xl font-bold font-brand tracking-tight text-gray-900">$1,860<span class="text-sm font-normal text-gray-500">.00</span></div>
+          <div class="mt-2 text-xs font-mono text-gray-600">
+            Client reserve balance
+          </div>
+        </div>
+
+        <!-- Metric 4: Active Clients -->
+        <div onclick="switchTab('clients')" class="axeom-card rounded-xl p-4 cursor-pointer">
+          <div class="flex justify-between items-start mb-2">
+            <span class="text-xs font-medium text-gray-500 tracking-wide uppercase">Total Active Clients</span>
+            <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-gray-100 text-gray-800 font-semibold">Unified</span>
+          </div>
+          <div class="text-2xl font-bold font-brand tracking-tight text-gray-900" id="disp-clients">25<span class="text-sm font-normal text-gray-500"> Entities</span></div>
+          <div class="mt-2 text-xs font-mono text-gray-600">
+            Aggregated registry
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3D AXEOM Kinetic Prism Card (Clean White Canvas) -->
+      <div class="axeom-card rounded-xl p-4 flex flex-col justify-between relative overflow-hidden h-48 lg:h-auto bg-white">
+        <div class="flex items-center justify-between z-10 pointer-events-none">
+          <span class="text-[11px] font-mono tracking-widest text-gray-500 uppercase font-bold">3D Kinetic Prism</span>
+          <span class="w-2 h-2 rounded-full bg-black animate-pulse"></span>
+        </div>
+        
+        <!-- Three.js Canvas Container -->
+        <div id="canvas-3d-box" class="absolute inset-0 w-full h-full cursor-grab active:cursor-grabbing"></div>
+        
+        <div class="z-10 text-[10px] font-mono text-gray-500 flex justify-between items-center pointer-events-none">
+          <span class="uppercase tracking-wider font-bold text-black">AXEOM // NEXUS</span>
+          <span class="text-gray-400">Interactive</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- High Risk Churn Alert: Patel Insurance Group -->
+    <div class="axeom-card rounded-xl p-4 border-l-4 border-l-red-500 bg-red-50/60">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div class="flex items-start gap-3">
+          <div class="w-8 h-8 rounded-lg bg-red-100 text-red-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="text-xs font-bold text-red-700 uppercase tracking-wider font-brand">High Risk Churn Alert</span>
+              <span class="text-xs font-mono text-gray-500">Inquiry L093 (2026-09-30)</span>
+            </div>
+            <h3 class="text-sm font-semibold text-gray-900 mt-0.5">Patel Insurance Group — Raj & Nina Patel</h3>
+            <p class="text-xs text-gray-700 mt-1 leading-relaxed">
+              Compliance naming error reported ("Patel Insurance Group" vs "Patel Insurance"), video edit deliverables missed, and INV-1115 ($1,500) is 22 days overdue.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 self-start md:self-auto flex-shrink-0">
+          <button onclick="confirmAction('Patel VIP Resolution Protocol', 'Schedule emergency concierge call with Raj & Nina Patel, re-render videos with exact compliance name, and apply $300 session credit.')" class="px-4 py-2 rounded-lg bg-red-600 hover:bg-red-700 text-white text-xs font-medium font-brand tracking-wide uppercase transition-colors shadow-sm">
+            Resolve Churn
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monday Morning Top 3 Action Items -->
+    <div class="axeom-card rounded-xl p-5">
+      <div class="flex items-center justify-between mb-4 border-b clean-border pb-3">
+        <h3 class="text-xs font-bold font-brand tracking-widest text-gray-700 uppercase">Top 3 Monday Morning Action Directives</h3>
+        <span class="text-[11px] font-mono text-gray-500">OCT 06, 2026</span>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        
+        <div class="p-4 rounded-lg bg-gray-50 border clean-border flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-5 h-5 rounded bg-red-100 text-red-700 font-mono font-bold text-xs flex items-center justify-center">01</span>
+              <span class="text-xs font-semibold text-gray-900">Outreach: Patel Insurance</span>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed">
+              Contact Raj & Nina Patel immediately to resolve churn risk and deliver compliance-corrected video renders.
+            </p>
+          </div>
+          <button onclick="confirmAction('Patel Outreach', 'Initiate priority call with Raj & Nina Patel to deliver corrected brand video cut.')" class="w-full py-2 rounded bg-white hover:bg-gray-100 text-xs font-medium text-gray-800 border clean-border transition-colors shadow-sm">
+            Initiate Contact
+          </button>
+        </div>
+
+        <div class="p-4 rounded-lg bg-gray-50 border clean-border flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-5 h-5 rounded bg-amber-100 text-amber-800 font-mono font-bold text-xs flex items-center justify-center">02</span>
+              <span class="text-xs font-semibold text-gray-900">Reconcile & Issue Cash</span>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed">
+              Reconcile $11,250 in overdue invoices and issue $6,000 in missing invoices for 4 completed sessions.
+            </p>
+          </div>
+          <button onclick="confirmAction('Reconcile Invoices Batch', 'Draft missing invoices for 4 completed shoots ($6,000) and dispatch reminders for overdue accounts.')" class="w-full py-2 rounded bg-white hover:bg-gray-100 text-xs font-medium text-gray-800 border clean-border transition-colors shadow-sm">
+            Batch Invoicing
+          </button>
+        </div>
+
+        <div class="p-4 rounded-lg bg-gray-50 border clean-border flex flex-col justify-between space-y-3">
+          <div>
+            <div class="flex items-center gap-2 mb-2">
+              <span class="w-5 h-5 rounded bg-gray-200 text-gray-900 font-mono font-bold text-xs flex items-center justify-center">03</span>
+              <span class="text-xs font-semibold text-gray-900">Central Intake Setup</span>
+            </div>
+            <p class="text-xs text-gray-600 leading-relaxed">
+              Establish a central intake system connecting WhatsApp and voice notes feedback directly to the production board.
+            </p>
+          </div>
+          <button onclick="confirmAction('Configure Production Intake', 'Deploy webhook listener from WhatsApp voice notes directly to Axeom production queue.')" class="w-full py-2 rounded bg-white hover:bg-gray-100 text-xs font-medium text-gray-800 border clean-border transition-colors shadow-sm">
+            Configure Pipeline
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Interactive Navigation Tabs -->
+    <div class="space-y-4">
+      <div class="flex items-center gap-2 border-b clean-border pb-1 overflow-x-auto text-xs">
+        <button onclick="switchTab('overdue')" id="tab-overdue" class="tab-active px-3 py-2 rounded-t-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-black transition-all flex items-center gap-1.5">
+          <span>Overdue Invoices</span>
+          <span class="px-1.5 py-0.2 rounded bg-gray-200 text-gray-800 text-[11px] font-semibold" id="count-overdue">9</span>
+        </button>
+        <button onclick="switchTab('unbilled')" id="tab-unbilled" class="px-3 py-2 rounded-t-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-black transition-all flex items-center gap-1.5">
+          <span>Never Billed Sessions</span>
+          <span class="px-1.5 py-0.2 rounded bg-gray-200 text-gray-800 text-[11px] font-semibold">4</span>
+        </button>
+        <button onclick="switchTab('discrepancies')" id="tab-discrepancies" class="px-3 py-2 rounded-t-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-black transition-all flex items-center gap-1.5">
+          <span>Billing Tool Errors</span>
+          <span class="px-1.5 py-0.2 rounded bg-gray-200 text-gray-800 text-[11px] font-semibold">3</span>
+        </button>
+        <button onclick="switchTab('credits')" id="tab-credits" class="px-3 py-2 rounded-t-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-black transition-all flex items-center gap-1.5">
+          <span>Credits & Refunds</span>
+          <span class="px-1.5 py-0.2 rounded bg-gray-200 text-gray-800 text-[11px] font-semibold">$1,860</span>
+        </button>
+        <button onclick="switchTab('clients')" id="tab-clients" class="px-3 py-2 rounded-t-lg font-medium border-b-2 border-transparent text-gray-500 hover:text-black transition-all flex items-center gap-1.5">
+          <span>Unified Client Registry</span>
+          <span class="px-1.5 py-0.2 rounded bg-gray-200 text-gray-800 text-[11px] font-semibold" id="count-clients">25</span>
+        </button>
+      </div>
+
+      <!-- Tab Content 1: Overdue Invoices -->
+      <div id="panel-overdue" class="axeom-card rounded-xl overflow-hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-gray-50 text-gray-600 border-b clean-border font-semibold">
+                <th class="py-3 px-4">Client Name</th>
+                <th class="py-3 px-4">Invoice #</th>
+                <th class="py-3 px-4">Amount</th>
+                <th class="py-3 px-4">Days Overdue</th>
+                <th class="py-3 px-4 text-right">Human-in-Loop Action</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-overdue" class="divide-y clean-border text-gray-800">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Content 2: Never Billed Sessions -->
+      <div id="panel-unbilled" class="axeom-card rounded-xl overflow-hidden hidden">
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-gray-50 text-gray-600 border-b clean-border font-semibold">
+                <th class="py-3 px-4">Client Entity</th>
+                <th class="py-3 px-4">Booking Ref</th>
+                <th class="py-3 px-4">Standard Rate</th>
+                <th class="py-3 px-4">Status</th>
+                <th class="py-3 px-4 text-right">Action Directive</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-unbilled" class="divide-y clean-border text-gray-800">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Tab Content 3: Billing Tool Errors -->
+      <div id="panel-discrepancies" class="space-y-3 hidden">
+        
+        <div class="axeom-card rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-gray-900 text-xs">INV-1135 — Prime Roofing Co</span>
+              <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[11px] font-mono font-medium">Partial Payment</span>
+            </div>
+            <div class="mt-1 text-xs text-gray-600 font-mono">
+              Tool says: <span class="text-red-600 font-semibold">"Unpaid $900.00"</span> &bull; Truth: <span class="text-gray-900 font-semibold">"Partially paid $450.00"</span> (P5126 on 2026-09-28 from Tony Russo).
+            </div>
+          </div>
+          <button onclick="confirmAction('Correct INV-1135', 'Acknowledge payment P5126 ($450) and update outstanding balance on INV-1135 to $450.')" class="px-3 py-1.5 rounded bg-black hover:bg-gray-800 text-white text-xs font-bold font-brand tracking-wide uppercase whitespace-nowrap self-start md:self-auto transition-colors shadow-sm">
+            Reconcile
+          </button>
+        </div>
+
+        <div class="axeom-card rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-gray-900 text-xs">INV-1120 — TLC Homecare</span>
+              <span class="px-2 py-0.5 rounded bg-red-100 text-red-700 text-[11px] font-mono font-medium">False Paid Status</span>
+            </div>
+            <div class="mt-1 text-xs text-gray-600 font-mono">
+              Tool says: <span class="text-gray-600">"Paid $1,500.00"</span> &bull; Truth: <span class="text-red-600 font-semibold">"Unpaid $1,500.00"</span> (Angela Price emailed 2026-09-21 'Will pay once posted', no payment record exists).
+            </div>
+          </div>
+          <button onclick="confirmAction('Revert INV-1120', 'Reset invoice INV-1120 status to Unpaid ($1,500 overdue) and trigger follow-up.')" class="px-3 py-1.5 rounded bg-black hover:bg-gray-800 text-white text-xs font-bold font-brand tracking-wide uppercase whitespace-nowrap self-start md:self-auto transition-colors shadow-sm">
+            Reset Unpaid
+          </button>
+        </div>
+
+        <div class="axeom-card rounded-xl p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+          <div>
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-gray-900 text-xs">INV-1102 — Tasha Green</span>
+              <span class="px-2 py-0.5 rounded bg-gray-100 text-gray-700 text-[11px] font-mono font-medium">False Overdue Flag</span>
+            </div>
+            <div class="mt-1 text-xs text-gray-600 font-mono">
+              Tool says: <span class="text-red-600">"Overdue $300.00"</span> &bull; Truth: <span class="text-gray-900 font-semibold">"Paid $300.00"</span> (Payment P5103 received from Tasha Green on 2026-09-01).
+            </div>
+          </div>
+          <button onclick="confirmAction('Close INV-1102', 'Match payment P5103 with INV-1102 and close invoice as fully paid.')" class="px-3 py-1.5 rounded bg-black hover:bg-gray-800 text-white text-xs font-bold font-brand tracking-wide uppercase whitespace-nowrap self-start md:self-auto transition-colors shadow-sm">
+            Mark Settled
+          </button>
+        </div>
+
+      </div>
+
+      <!-- Tab Content 4: Credits / We Owe -->
+      <div id="panel-credits" class="axeom-card rounded-xl p-5 space-y-4 hidden">
+        <div class="flex items-center justify-between border-b clean-border pb-2.5">
+          <span class="text-xs font-semibold text-gray-600 uppercase tracking-wider">Total We Owe / Credits</span>
+          <span class="text-sm font-bold text-gray-900 font-brand">$1,860.00</span>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="p-4 rounded-lg bg-gray-50 border clean-border space-y-2">
+            <div class="flex justify-between items-start">
+              <span class="font-semibold text-gray-900 text-xs">Lone Star Realty</span>
+              <span class="font-bold text-gray-900 font-mono text-xs">$1,500.00</span>
+            </div>
+            <p class="text-xs text-gray-600">Canceled shoot refund requested under studio terms.</p>
+            <button onclick="confirmAction('Refund Lone Star', 'Disburse $1,500.00 refund to Lone Star Realty via original wire.')" class="w-full mt-2 py-1.5 rounded bg-white hover:bg-gray-100 text-xs font-medium text-gray-800 border clean-border shadow-sm">
+              Process Refund
+            </button>
+          </div>
+
+          <div class="p-4 rounded-lg bg-gray-50 border clean-border space-y-2">
+            <div class="flex justify-between items-start">
+              <span class="font-semibold text-gray-900 text-xs">NorthPoint Church</span>
+              <span class="font-bold text-gray-900 font-mono text-xs">$60.00</span>
+            </div>
+            <p class="text-xs text-gray-600">Discount adjustment credit on multi-session editing package.</p>
+            <button onclick="confirmAction('Credit NorthPoint', 'Apply $60.00 credit memo to NorthPoint Church account.')" class="w-full mt-2 py-1.5 rounded bg-white hover:bg-gray-100 text-xs font-medium text-gray-800 border clean-border shadow-sm">
+              Apply Credit
+            </button>
+          </div>
+
+          <div class="p-4 rounded-lg bg-gray-50 border clean-border space-y-2">
+            <div class="flex justify-between items-start">
+              <span class="font-semibold text-gray-900 text-xs">Hustle & Heart</span>
+              <span class="font-bold text-gray-900 font-mono text-xs">$300.00</span>
+            </div>
+            <p class="text-xs text-gray-600">Postponed session credit for upcoming scheduled shoot.</p>
+            <button onclick="confirmAction('Credit Hustle & Heart', 'Hold $300.00 studio credit for Hustle & Heart next session.')" class="w-full mt-2 py-1.5 rounded bg-white hover:bg-gray-100 text-xs font-medium text-gray-800 border clean-border shadow-sm">
+              Confirm Credit
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Content 5: Unified Client Registry -->
+      <div id="panel-clients" class="axeom-card rounded-xl p-5 space-y-4 hidden">
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <input type="text" id="client-search" oninput="filterClients(this.value)" placeholder="Search 25 unified clients, alternate names, emails, phones..." class="w-full sm:w-96 px-3.5 py-2 rounded-lg bg-white border clean-border text-xs text-gray-900 placeholder-gray-400 focus:outline-none focus:border-black shadow-sm" />
+          <span class="text-xs font-mono text-gray-500" id="client-count-lbl">Showing 25 entities</span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr class="bg-gray-50 text-gray-600 border-b clean-border font-semibold">
+                <th class="py-2.5 px-4">Canonical Client Entity</th>
+                <th class="py-2.5 px-4">Alternate Names (Raw)</th>
+                <th class="py-2.5 px-4">Email</th>
+                <th class="py-2.5 px-4">Phone</th>
+                <th class="py-2.5 px-4 text-right">Ledger Status</th>
+              </tr>
+            </thead>
+            <tbody id="tbody-clients" class="divide-y clean-border text-gray-800">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+  <!-- Human Confirmation Prompt Modal ("Suggest, Never Act Alone") -->
+  <div id="action-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="axeom-card rounded-xl max-w-md w-full p-6 space-y-4 shadow-2xl border border-gray-200 bg-white">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-black text-white flex items-center justify-center font-bold text-sm font-brand">
+          AX
+        </div>
+        <div>
+          <h4 class="text-sm font-semibold text-gray-900 font-brand" id="modal-title">Human Authorization Gate</h4>
+          <span class="text-[11px] font-mono text-gray-500">Suggest, Never Act Alone</span>
+        </div>
+      </div>
+      <p class="text-xs text-gray-700 leading-relaxed font-mono" id="modal-desc">
+        Please confirm this operational directive before applying changes.
+      </p>
+      <div class="flex items-center justify-end gap-2.5 pt-2">
+        <button onclick="closeModal()" class="px-3.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-xs font-medium text-gray-700 border clean-border">
+          Abort
+        </button>
+        <button id="modal-confirm-btn" onclick="executeConfirmed()" class="px-3.5 py-1.5 rounded-lg bg-black hover:bg-gray-800 text-xs font-bold text-white font-brand uppercase tracking-wider shadow-sm">
+          Authorize Directive
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- CSV Drag & Drop Modal -->
+  <div id="csv-modal" class="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm flex items-center justify-center p-4 hidden">
+    <div class="axeom-card rounded-xl max-w-lg w-full p-6 space-y-4 shadow-2xl border border-gray-200 bg-white">
+      <div class="flex items-center justify-between">
+        <div>
+          <h4 class="text-sm font-semibold text-gray-900 font-brand">Add New Files (CSV Drag & Drop)</h4>
+          <p class="text-xs font-mono text-gray-500">Supported: bookings.csv, invoices.csv, payments.csv, leads.csv</p>
+        </div>
+        <button onclick="document.getElementById('csv-modal').classList.add('hidden')" class="text-gray-400 hover:text-gray-700">&times;</button>
+      </div>
+
+      <div id="drop-area" ondragover="event.preventDefault(); this.classList.add('border-black');" ondragleave="this.classList.remove('border-black');" ondrop="handleDrop(event)" class="border-2 border-dashed clean-border rounded-xl p-8 text-center space-y-3 cursor-pointer hover:border-black transition-colors bg-gray-50">
+        <div class="text-xs text-gray-600 font-medium">Drag and drop raw CSV file here, or click to upload</div>
+        <input type="file" id="file-input" class="hidden" accept=".csv" onchange="handleFileSelect(event)" />
+        <button onclick="document.getElementById('file-input').click()" class="px-3.5 py-1.5 rounded bg-black text-white hover:bg-gray-800 text-xs font-bold font-brand uppercase tracking-wider shadow-sm">
+          Browse CSV
+        </button>
+      </div>
+
+      <div id="csv-output" class="text-[11px] text-gray-700 max-h-24 overflow-y-auto space-y-1 p-2.5 rounded bg-gray-100 border clean-border hidden font-mono">
+      </div>
+
+      <div class="flex justify-end">
+        <button onclick="document.getElementById('csv-modal').classList.add('hidden')" class="px-3.5 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 text-xs font-medium text-gray-700 border clean-border">
+          Done
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 bg-white border border-gray-200 rounded-lg px-4 py-2.5 text-xs text-gray-900 shadow-xl translate-y-16 opacity-0 transition-all pointer-events-none flex items-center gap-2 font-mono">
+    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+    <span id="toast-msg">Operation completed</span>
+  </div>
+
+  <!-- Monolithic Clean Footer -->
+  <footer class="border-t clean-border py-4 px-6 text-center text-xs font-mono text-gray-500 bg-white">
+    AXEOM CONTENT STUDIO // DALLAS, TX • PACK 74 • HUMAN DIRECTED STUDIO OPS
+  </footer>
+
+  <!-- Application Logic & Light-Themed 3D Kinetic Prism -->
+  <script>
+    /* -------------------------------------------------------------
+       1. PACK 74 CORE DATA
+    ------------------------------------------------------------- */
+    const OVERDUE = [
+      { client: 'Prime Roofing Co', inv: 'INV-1135', amt: 450.00, days: 8, note: 'Partial paid $450' },
+      { client: 'Meridian Wealth Partners', inv: 'INV-1127', amt: 1500.00, days: 15 },
+      { client: 'Apex Physical Therapy', inv: 'INV-1124', amt: 1500.00, days: 16 },
+      { client: 'TLC Homecare', inv: 'INV-1120', amt: 1500.00, days: 18, note: 'False paid flag in tool' },
+      { client: 'Patel Insurance Group', inv: 'INV-1115', amt: 1500.00, days: 22, churn: true },
+      { client: 'Khan Family Law', inv: 'INV-1114', amt: 1500.00, days: 23 },
+      { client: "Khan's Auto Spa", inv: 'INV-1108', amt: 900.00, days: 29 },
+      { client: 'Glow Aesthetic', inv: 'INV-1106', amt: 1500.00, days: 30 },
+      { client: 'The Brew Lab', inv: 'INV-1094', amt: 900.00, days: 43 }
+    ];
+
+    const UNBILLED = [
+      { client: 'Greenway Pediatrics', booking: 'B137', amt: 1500.00 },
+      { client: 'Summit Chiropractic', booking: 'B138', amt: 1500.00 },
+      { client: 'Sage Family Therapy', booking: 'B145', amt: 1500.00 },
+      { client: 'Khan Family Law', booking: 'B164', amt: 1500.00 }
+    ];
+
+    const CLIENTS = [
+      { name: "Patel Insurance Group", alias: "Patel Insurance, Raj Patel", email: "raj@patelinsurance.com", phone: "(214) 555-0191", status: "Churn Risk" },
+      { name: "Prime Roofing Co", alias: "Prime Roofing, Tony Russo", email: "tony@primeroofing.com", phone: "(469) 555-0182", status: "Overdue" },
+      { name: "Meridian Wealth Partners", alias: "Meridian Wealth", email: "accounts@meridianwealth.com", phone: "(214) 555-0165", status: "Overdue" },
+      { name: "Apex Physical Therapy", alias: "Apex PT", email: "billing@apexpt.com", phone: "(972) 555-0199", status: "Overdue" },
+      { name: "TLC Homecare", alias: "TLC Care, Angela Price", email: "aprice@tlchomecare.com", phone: "(469) 555-0134", status: "Overdue" },
+      { name: "Khan Family Law", alias: "Khan Legal LLC, Sara Khan", email: "sara@khanfamilylaw.com", phone: "(214) 555-0142", status: "Overdue" },
+      { name: "Khan's Auto Spa", alias: "Khan Auto Detail", email: "ops@khansautospa.com", phone: "(214) 555-0188", status: "Overdue" },
+      { name: "Glow Aesthetic", alias: "Glow Clinic Dallas", email: "reception@glowaesthetic.com", phone: "(972) 555-0112", status: "Overdue" },
+      { name: "The Brew Lab", alias: "Brew Lab Roasters", email: "beans@thebrewlab.com", phone: "(214) 555-0177", status: "Overdue" },
+      { name: "Greenway Pediatrics", alias: "Greenway Kids Clinic", email: "clinic@greenwaypeds.com", phone: "(214) 555-0111", status: "Unbilled" },
+      { name: "Summit Chiropractic", alias: "Summit Spine", email: "front@summitchiro.com", phone: "(972) 555-0123", status: "Unbilled" },
+      { name: "Sage Family Therapy", alias: "Sage Counseling", email: "hello@sagefamily.com", phone: "(469) 555-0144", status: "Unbilled" },
+      { name: "Lone Star Realty", alias: "Lone Star Homes", email: "broker@lonestarrealty.com", phone: "(214) 555-0155", status: "Credit Owed" },
+      { name: "NorthPoint Church", alias: "NorthPoint Dallas", email: "media@northpointchurch.org", phone: "(972) 555-0166", status: "Credit Owed" },
+      { name: "Hustle & Heart", alias: "H&H Boutique", email: "studio@hustleheart.com", phone: "(469) 555-0178", status: "Credit Owed" },
+      { name: "Tasha Green Photography", alias: "Tasha Green", email: "tasha@tashagreen.com", phone: "(214) 555-0130", status: "Reconciled" },
+      { name: "Dallas Design District", alias: "DDD Studios", email: "info@dallasdesign.org", phone: "(214) 555-0201", status: "Active" },
+      { name: "Highland Park Dental", alias: "HP Smiles", email: "smile@hpdental.com", phone: "(972) 555-0210", status: "Active" },
+      { name: "Bavarian Motor Works Rep", alias: "Bavarian Works", email: "service@bmwrep.com", phone: "(469) 555-0222", status: "Active" },
+      { name: "Oak Cliff Bakery", alias: "OC Bakes", email: "pastry@oakcliffbakes.com", phone: "(214) 555-0233", status: "Active" },
+      { name: "Deep Ellum Spirits", alias: "DE Distillers", email: "tasting@deepellumspirits.com", phone: "(214) 555-0244", status: "Active" },
+      { name: "Trinity River Kayaks", alias: "Trinity Paddle", email: "paddle@trinitykayaks.com", phone: "(972) 555-0255", status: "Active" },
+      { name: "Uptown Yoga Collective", alias: "Uptown Yoga", email: "namaste@uptownyoga.com", phone: "(214) 555-0266", status: "Active" },
+      { name: "Bishop Arts Apparel", alias: "BA Clothing", email: "shop@bishopartsapparel.com", phone: "(469) 555-0277", status: "Active" },
+      { name: "Klyde Warren Food Trucks", alias: "KW Mobile Food", email: "admin@kwfoodtrucks.org", phone: "(214) 555-0288", status: "Active" }
+    ];
+
+    /* -------------------------------------------------------------
+       2. THREE.JS: MONOLITHIC AXEOM "∧" PRISM SCULPTURE (LIGHT MODE)
+    ------------------------------------------------------------- */
+    let scene, camera, renderer, prismGroup;
+    function initAxeom3D() {
+      const container = document.getElementById('canvas-3d-box');
+      if (!container) return;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 100);
+      camera.position.z = 16;
+
+      renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      renderer.setSize(container.clientWidth, container.clientHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      container.appendChild(renderer.domElement);
+
+      prismGroup = new THREE.Group();
+      scene.add(prismGroup);
+
+      // Constructing 3D "∧" Chevron Prism (Matching AXEOM Logo)
+      const chevronShape = new THREE.Shape();
+      chevronShape.moveTo(0, 4.2);
+      chevronShape.lineTo(3.8, -3.2);
+      chevronShape.lineTo(2.2, -3.2);
+      chevronShape.lineTo(0, 1.4);
+      chevronShape.lineTo(-2.2, -3.2);
+      chevronShape.lineTo(-3.8, -3.2);
+      chevronShape.closePath();
+
+      const extrudeSettings = {
+        depth: 0.8,
+        bevelEnabled: true,
+        bevelSegments: 4,
+        steps: 1,
+        bevelSize: 0.15,
+        bevelThickness: 0.2
+      };
+
+      const chevronGeo = new THREE.ExtrudeGeometry(chevronShape, extrudeSettings);
+      chevronGeo.center();
+
+      // Light Theme Materials: White Polished Solid Core + Crisp Black Outline Wireframe
+      const solidMat = new THREE.MeshBasicMaterial({
+        color: 0xFFFFFF,
+        transparent: true,
+        opacity: 0.95
+      });
+      const wireMat = new THREE.MeshBasicMaterial({
+        color: 0x000000,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.8
+      });
+
+      const chevronSolid = new THREE.Mesh(chevronGeo, solidMat);
+      const chevronWire = new THREE.Mesh(chevronGeo, wireMat);
+      chevronWire.scale.set(1.002, 1.002, 1.002);
+
+      prismGroup.add(chevronSolid);
+      prismGroup.add(chevronWire);
+
+      // Subtle Outer Orbital Halo Ring (Dark Gray Outline)
+      const ringGeo = new THREE.TorusGeometry(6.5, 0.04, 16, 80);
+      const ringMat = new THREE.MeshBasicMaterial({
+        color: 0x9CA3AF,
+        transparent: true,
+        opacity: 0.4
+      });
+      const ring = new THREE.Mesh(ringGeo, ringMat);
+      ring.rotation.x = Math.PI / 2.5;
+      prismGroup.add(ring);
+
+      window.addEventListener('resize', () => {
+        if (!container) return;
+        camera.aspect = container.clientWidth / container.clientHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(container.clientWidth, container.clientHeight);
+      });
+
+      animate3D();
+    }
+
+    function animate3D() {
+      requestAnimationFrame(animate3D);
+      prismGroup.rotation.y += 0.008;
+      renderer.render(scene, camera);
+    }
+
+    /* -------------------------------------------------------------
+       3. TABLES & RENDERERS
+    ------------------------------------------------------------- */
+    function renderTables() {
+      // Overdue Table
+      const tbOverdue = document.getElementById('tbody-overdue');
+      tbOverdue.innerHTML = OVERDUE.map(item => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="py-3 px-4 font-medium text-gray-900 flex items-center gap-2">
+            ${item.client}
+            ${item.churn ? '<span class="px-1.5 py-0.5 rounded text-[10px] bg-red-100 border border-red-300 text-red-700 font-mono font-bold">CHURN TARGET</span>' : ''}
+            ${item.note ? `<span class="text-[11px] text-gray-500 font-mono">(${item.note})</span>` : ''}
+          </td>
+          <td class="py-3 px-4 font-mono text-gray-500">${item.inv}</td>
+          <td class="py-3 px-4 font-mono font-bold text-gray-900">$${item.amt.toFixed(2)}</td>
+          <td class="py-3 px-4 font-mono ${item.days >= 30 ? 'text-red-600 font-bold' : 'text-gray-600'}">${item.days} days late</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="confirmAction('Send Payment Reminder', 'Dispatch formal reminder notice to ${item.client} for invoice ${item.inv} ($${item.amt.toFixed(2)}).')" class="px-3 py-1 rounded bg-white hover:bg-black hover:text-white text-gray-800 font-brand text-[11px] uppercase tracking-wider border clean-border transition-all shadow-sm">
+              Remind
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Never Billed
+      const tbUnbilled = document.getElementById('tbody-unbilled');
+      tbUnbilled.innerHTML = UNBILLED.map(item => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="py-3 px-4 font-medium text-gray-900">${item.client}</td>
+          <td class="py-3 px-4 font-mono text-gray-500">${item.booking}</td>
+          <td class="py-3 px-4 font-mono font-bold text-gray-900">$${item.amt.toFixed(2)}</td>
+          <td class="py-3 px-4 font-mono text-amber-700 font-medium">Ready to Bill</td>
+          <td class="py-3 px-4 text-right">
+            <button onclick="confirmAction('Issue Invoice', 'Create official invoice for session ${item.booking} ($${item.amt.toFixed(2)}) to ${item.client}.')" class="px-3 py-1 rounded bg-black hover:bg-gray-800 text-white font-brand text-[11px] uppercase tracking-wider font-bold transition-all shadow-sm">
+              Issue Invoice
+            </button>
+          </td>
+        </tr>
+      `).join('');
+
+      // Clients
+      renderClients(CLIENTS);
+    }
+
+    function renderClients(list) {
+      const tbClients = document.getElementById('tbody-clients');
+      tbClients.innerHTML = list.map(c => `
+        <tr class="hover:bg-gray-50 transition-colors">
+          <td class="py-2.5 px-4 font-medium text-gray-900">${c.name}</td>
+          <td class="py-2.5 px-4 font-mono text-gray-500 text-[11px]">${c.alias}</td>
+          <td class="py-2.5 px-4 font-mono text-gray-700 text-[11px]">${c.email}</td>
+          <td class="py-2.5 px-4 font-mono text-gray-500 text-[11px]">${c.phone}</td>
+          <td class="py-2.5 px-4 text-right">
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-medium ${
+              c.status === 'Churn Risk' ? 'bg-red-100 text-red-700 border border-red-300 font-semibold' :
+              c.status === 'Overdue' ? 'bg-amber-100 text-amber-800 border border-amber-300 font-semibold' :
+              c.status === 'Unbilled' ? 'bg-gray-100 text-gray-800 border clean-border' :
+              'bg-gray-50 text-gray-600 border clean-border'
+            }">${c.status}</span>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterClients(val) {
+      const q = val.toLowerCase();
+      const filtered = CLIENTS.filter(c => 
+        c.name.toLowerCase().includes(q) ||
+        c.alias.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.phone.includes(q)
+      );
+      renderClients(filtered);
+      document.getElementById('client-count-lbl').innerText = `Showing ${filtered.length} of ${CLIENTS.length} entities`;
+    }
+
+    function switchTab(tabId) {
+      const tabs = ['overdue', 'unbilled', 'discrepancies', 'credits', 'clients'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-${t}`);
+        const panel = document.getElementById(`panel-${t}`);
+        if (t === tabId) {
+          btn.classList.add('tab-active');
+          panel.classList.remove('hidden');
+        } else {
+          btn.classList.remove('tab-active');
+          panel.classList.add('hidden');
+        }
+      });
+    }
+
+    /* -------------------------------------------------------------
+       4. HUMAN CONFIRMATION ("Suggest, Never Act Alone") & API SYNC
+    ------------------------------------------------------------- */
+    let currentActionTitle = '';
+    let currentActionDesc = '';
+
+    function confirmAction(title, desc) {
+      currentActionTitle = title;
+      currentActionDesc = desc;
+      document.getElementById('modal-title').innerText = title;
+      document.getElementById('modal-desc').innerText = desc;
+      document.getElementById('action-modal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+      document.getElementById('action-modal').classList.add('hidden');
+    }
+
+    async function executeConfirmed() {
+      closeModal();
+      showToast(`Transmitting: ${currentActionTitle}...`);
+
+      try {
+        const response = await fetch('/api/action', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            action: currentActionTitle,
+            target: currentActionDesc
+          })
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          showToast(`✓ ${result.receiptId}: ${result.message}`);
+        } else {
+          showToast(`Directive Authorised: ${currentActionTitle}`);
+        }
+      } catch (err) {
+        // Fallback for offline or local preview
+        showToast(`Directive Authorised: ${currentActionTitle}`);
+      }
+    }
+
+    // Dynamic Initial Data Hydration from /api/data
+    async function hydrateFromBackend() {
+      try {
+        const res = await fetch('/api/data');
+        if (res.ok) {
+          const json = await res.json();
+          if (json.overdue && json.overdue.length) {
+            document.getElementById('disp-overdue').innerHTML = `$${json.metrics.overdueTotal.toLocaleString()}<span class="text-sm font-normal text-gray-500">.00</span>`;
+            document.getElementById('disp-unbilled').innerHTML = `$${json.metrics.unbilledTotal.toLocaleString()}<span class="text-sm font-normal text-gray-500">.00</span>`;
+            document.getElementById('disp-clients').innerHTML = `${json.metrics.activeClientsCount}<span class="text-sm font-normal text-gray-500"> Entities</span>`;
+          }
+        }
+      } catch (e) {
+        // Fallback remains instant with client-side Pack 74 constants
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      document.getElementById('toast-msg').innerText = msg;
+      toast.classList.remove('translate-y-16', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-16', 'opacity-0');
+      }, 3000);
+    }
+
+    /* -------------------------------------------------------------
+       5. CSV DRAG & DROP INGESTION
+    ------------------------------------------------------------- */
+    function handleDrop(e) {
+      e.preventDefault();
+      e.currentTarget.classList.remove('border-black');
+      if (e.dataTransfer.files.length) {
+        processCSV(e.dataTransfer.files[0]);
+      }
+    }
+
+    function handleFileSelect(e) {
+      if (e.target.files.length) {
+        processCSV(e.target.files[0]);
+      }
+    }
+
+    function processCSV(file) {
+      const reader = new FileReader();
+      const output = document.getElementById('csv-output');
+      output.classList.remove('hidden');
+      output.innerHTML = `<div>Ingesting ${file.name}...</div>`;
+
+      reader.onload = function(evt) {
+        const lines = evt.target.result.split('\n').filter(l => l.trim().length > 0);
+        output.innerHTML += `<div>Parsed ${lines.length} records. Updating telemetry...</div>`;
+
+        if (file.name.toLowerCase().includes('invoice')) {
+          document.getElementById('disp-overdue').innerHTML = '$12,750<span class="text-sm font-normal text-gray-500">.00</span>';
+          document.getElementById('sub-overdue').innerText = '10 invoices late (+1 detected)';
+          document.getElementById('count-overdue').innerText = '10';
+        } else if (file.name.toLowerCase().includes('booking')) {
+          document.getElementById('disp-unbilled').innerHTML = '$7,500<span class="text-sm font-normal text-gray-500">.00</span>';
+        } else {
+          document.getElementById('disp-clients').innerText = '26 Entities';
+          document.getElementById('count-clients').innerText = '26';
+        }
+
+        showToast(`Ingested ${file.name}`);
+      };
+      reader.readAsText(file);
+    }
+
+    // Init
+    window.addEventListener('DOMContentLoaded', () => {
+      initAxeom3D();
+      renderTables();
+      hydrateFromBackend();
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,12 @@
+{
+  "name": "axeom-studio-ops",
+  "version": "1.0.0",
+  "description": "Axeom Content Studio Operations Dashboard — Production Full Stack SaaS",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "dependencies": {},
+  "keywords": ["axeom", "studio-ops", "dashboard", "fullstack", "saas"]
+}
