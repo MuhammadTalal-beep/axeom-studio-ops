@@ -1,10 +1,15 @@
 [build]
   publish = "."
-  functions = "api"
+  functions = "netlify/functions"
 
 [[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  from = "/api/data"
+  to = "/.netlify/functions/data"
+  status = 200
+
+[[redirects]]
+  from = "/api/action"
+  to = "/.netlify/functions/action"
   status = 200
 
 [[headers]]
